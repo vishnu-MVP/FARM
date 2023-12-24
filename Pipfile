@@ -8,6 +8,9 @@ httpie = "*"
 fastapi = "*"
 uvicorn = "*"
 python-multipart = "*"
+motor = "*"
+dnspython = "*"
+python-decouple = "*"
 
 [dev-packages]
 
