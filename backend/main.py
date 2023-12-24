@@ -12,8 +12,24 @@ from fastapi import APIRouter, Request, Body, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from models import CarBase
+from fastapi.middleware.cors import CORSMiddleware
+origins = [
+"http://localhost",
+"http://localhost:8080",
+"http://localhost:3000",
+"http://localhost:8000",
+]
 router =APIRouter()
 app = FastAPI()
+app.add_middleware(
+CORSMiddleware,
+allow_origins=origins,
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
+)
+
+
 app.include_router(cars_router,prefix='/cars',tags=['cars'])
 @app.on_event("startup")
 async def startup_db_client():
@@ -21,17 +37,7 @@ async def startup_db_client():
     app.mongodb = app.mongodb_client[DB_NAME]
 
 
-#Inserting into the database
-    
-@router.post("/", response_description="Add new car")
-async def create_car(request: Request, car: CarBase =Body(...)):
-    car = jsonable_encoder(car)
-    new_car = await request.app.mongodb["cars"].insert_one(car)
-    created_car = await request.app.mongodb["cars"].find_one({"_id": new_car.inserted_id}
-)
-    return JSONResponse(status_code=status.HTTP_201_CREATED,content=created_car)
 
-####### End of insertion
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
